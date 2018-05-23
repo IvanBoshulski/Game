@@ -1,0 +1,154 @@
+#include<stdio.h>
+#include<conio.h>
+#include<time.h>
+#include<iostream>
+#include<string.h>
+#include <windows.h>
+#include <cstdlib>
+#include <cstdio>
+
+
+
+#define row 15
+#define col 1
+
+void GoToXY(int column, int line);
+int move(char arr[][col], int is);
+int print(char arr[][col]);
+void generate();
+
+int dot_i, dot_j, score = 0,sl=70;
+
+int main(){
+	char arr[row][col] = { ' ' }, c, novo;
+	int is = 0, chck, s;
+	FILE *f;
+
+	do{
+		GoToXY(25, 0);
+		printf("Welcome to O-game\n\n\n");
+		GoToXY(21, 3);
+		printf("Press any key to start! Enjoy!\n");
+		c = getch();
+		system("cls");
+
+		do{
+			generate();
+			chck = move(arr, 0);
+		} while (!chck);
+		printf("\n");
+		GoToXY(0, 16);
+		printf("GAME OVER\n\n", score / 15);
+
+		f = fopen("Score.txt", "r");
+		fscanf(f, "%d", &s);
+
+		if (s < score / 15){
+			f = fopen("Score.txt", "w");
+			fprintf(f, "%d", score / 15);
+			fclose(f);
+			printf("High score is your score!!!\n\n");
+		}
+		else
+			printf("High score:%d\n", s);
+		GoToXY(0, 18);
+		printf("\n\nAll rights saved.\nEveryone 41 Corp. 2017\n\n");
+		fclose(f);
+		printf("Do you want New Game?[y=yes;n=no]\n");
+		novo = getch();
+		system("cls");
+	} while (novo == 'y' || novo == 'Y');
+	
+	system("pause");
+}
+
+int move(char arr[][col], int is){
+	int i, j, col2, check;
+	static int n;
+	char c;
+	col2 = 0;
+	srand(time(NULL));
+	if (is == 0){
+		do{
+			n = rand() % row;
+		} while (n > 13);
+	}
+	if (kbhit() != 0){
+		c = getch();
+		if (c == 'w' || c == 'W')  n--;
+		else if (c == 's' || c == 'S')  n++;
+	}
+	if (n < 0)n = n + 15;
+		else if (n>15)n = n - 15;
+
+	for (i = 0; i < row; i++){
+		if (i == n)
+			arr[i][col2] = ' ';
+		else
+			arr[i][col2] = '|';
+	}
+	check = 100;
+	if (is == 0){
+		is++;
+		check=print(arr);
+	}
+	if (!check)
+		return 0;
+			else return 1;
+}
+
+int print(char arr[][col]){
+	int i, j, x, y;
+	y = 0;
+	for (j = 75; j >= 0; j--, y = 0){
+		Sleep(sl);
+		for (i = 0; i < 15; i++){
+			GoToXY(j, i);
+			if (j  == dot_j){
+				if (arr[dot_i][0] != ' ')
+					return 1;
+				else {
+					score++;
+					if ((score / 15) % 7 == 0)
+					sl--;
+				}
+			}
+			
+			printf("%c ", arr[y++][0]);	
+		}
+		
+		GoToXY(0,17);
+		printf("Your Score is:%d\n", score/15);
+		move(arr,1);
+	}
+	return 0;
+}
+
+void generate(){
+	int i, j, n=0;
+	srand(time(NULL));
+	i = rand() % row;
+	j = rand() % row - 3;
+	n = i - j;
+	while (n > 14)
+		n = rand();
+	if (n < 0) n = -n;
+	dot_j = 5;
+	dot_i = n;
+	GoToXY(5, n);
+	printf("*");
+}
+
+void GoToXY(int column, int line)
+{
+
+	COORD coord;
+	coord.X = column;
+	coord.Y = line;
+
+
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	SetConsoleCursorPosition(hConsole, coord);
+
+}
